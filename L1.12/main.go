@@ -8,12 +8,12 @@ func main() {
 	B := []string{"cat", "cat", "dog", "cat", "tree"}
 
 	fmt.Println(makeSet(A))
-	fmt.Println(makeSet(B))
+	fmt.Println(makeSet2(B))
 
 }
 
-// makeSet returns a slice containing the unique elements of the input slice.
-// T is a generic type constrained by comparable, so it can be used as a map key.
+// makeSet returns a slice of unique elements from the input slice.
+// Fast but unordered — uses map for deduplication with two passes.
 func makeSet[T comparable](arr []T) []T {
 	hm := make(map[T]struct{})
 	for _, val := range arr {
@@ -24,6 +24,20 @@ func makeSet[T comparable](arr []T) []T {
 		set = append(set, key)
 	}
 	return set
+}
+
+// makeSet2 returns a slice of unique elements from the input slice.
+// Preserves order of first occurrence — single pass with conditional checks.
+func makeSet2[T comparable](arr []T) []T {
+	hm := make(map[T]struct{})
+	res := []T{}
+	for _, val := range arr {
+		if _, ok := hm[val]; !ok {
+			hm[val] = struct{}{}
+			res = append(res, val)
+		}
+	}
+	return res
 }
 
 /*

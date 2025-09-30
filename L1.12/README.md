@@ -1,9 +1,7 @@
 ## L1.12
 
-This Go snippet demonstrates extracting the unique elements from a slice, effectively converting it into a set.
+This Go snippet demonstrates two approaches for extracting the unique elements from a slice, effectively converting it into a set. The program defines generic functions that accept slices of any comparable type. Both approaches iterate over the input slice and use maps to eliminate duplicates by storing each element as a map key, then collecting the unique keys into a new slice.
 
-The program defines a generic function, makeSet, which accepts a slice of any comparable type.
+The first approach uses two passes through the data - first populating the map with all elements, then extracting the map keys into a result slice. This method is efficient but returns elements in random order based on map iteration.
 
-It iterates over the input slice and stores each element in a map to eliminate duplicates.
-
-Then it collects all map keys into a new slice, which is returned as the set of unique elements.
+The second approach uses a single pass, checking the map during iteration and immediately appending new elements to the result slice. This preserves the original order of first occurrence while still leveraging the map for duplicate detection, providing more predictable output at the cost of some performance.
