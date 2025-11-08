@@ -36,6 +36,7 @@ func (a Action) handleApple() {
 }
 
 func main() {
+
 	Adam := GodFunction("Adam", 20)
 	Eve := GodFunction("Eve", 20)
 
@@ -46,6 +47,7 @@ func main() {
 
 	action.handleApple()
 	action.Human.handleApple()
+
 }
 
 /*

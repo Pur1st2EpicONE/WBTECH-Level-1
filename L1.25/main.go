@@ -19,6 +19,7 @@ func sleep(duration time.Duration) {
 
 // restlessSleep pauses the current goroutine for the given duration
 // using a busy-wait loop (CPU-intensive and inefficient)
+// This function is here just to illustrate the concept and shouldn't be used in real applications.
 func restlessSleep(duration time.Duration) {
 	start := time.Now()
 	for time.Since(start) < duration {

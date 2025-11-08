@@ -18,35 +18,35 @@ type atomicCounter struct {
 func main() {
 
 	var wg sync.WaitGroup
-	var mutex mutexCounter
-	var atomic atomicCounter
+	var mc mutexCounter
+	var ac atomicCounter
 
-	mutexExample(&mutex, &wg)
-	atomicExample(&atomic, &wg)
+	mutexExample(&mc, &wg)
+	atomicExample(&ac, &wg)
 
 	wg.Wait()
 
-	fmt.Printf("mutex value — %d\n", mutex.cnt)
-	fmt.Printf("atomic value — %d\n", atomic.cnt.Load())
+	fmt.Printf("mutex value — %d\n", mc.cnt)
+	fmt.Printf("atomic value — %d\n", ac.cnt.Load())
 
 }
 
 // mutexExample increments the counter using a mutex to protect access.
-func mutexExample(mutex *mutexCounter, wg *sync.WaitGroup) {
+func mutexExample(mc *mutexCounter, wg *sync.WaitGroup) {
 	for range 10 {
 		wg.Go(func() {
-			mutex.mu.Lock()
-			mutex.cnt++
-			mutex.mu.Unlock()
+			mc.mu.Lock()
+			mc.cnt++
+			mc.mu.Unlock()
 		})
 	}
 }
 
 // atomicExample increments the counter using atomic operations.
-func atomicExample(atomic *atomicCounter, wg *sync.WaitGroup) {
+func atomicExample(ac *atomicCounter, wg *sync.WaitGroup) {
 	for range 20 {
 		wg.Go(func() {
-			atomic.cnt.Add(1)
+			ac.cnt.Add(1)
 		})
 	}
 }

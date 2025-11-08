@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	workers := checkArgs()
+	workers := parseArgs()
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
@@ -20,9 +20,9 @@ func main() {
 	ch := make(chan int)
 	var wg sync.WaitGroup
 
-	for wokerID := range workers {
+	for workerID := range workers {
 		wg.Add(1)
-		go worker(ch, wokerID+1, &wg)
+		go worker(ch, workerID+1, &wg)
 	}
 
 	i := 1
@@ -35,14 +35,15 @@ func main() {
 			return
 		case ch <- i:
 			i++
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond) // to simulate work delay
 		}
 	}
+
 }
 
-// checkArgs parses the number of workers from command-line arguments.
+// parseArgs parses the number of workers from command-line arguments.
 // Returns the number of workers and defaults to 3 if argument is invalid or missing.
-func checkArgs() int {
+func parseArgs() int {
 	amount := 3
 	if len(os.Args) > 1 {
 		newAmount, err := strconv.Atoi(os.Args[1])

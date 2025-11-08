@@ -9,33 +9,70 @@ func main() {
 
 }
 
-// quickSort is the entry point that sorts a slice of integers in-place
+// quickSort sorts a slice of integers in ascending order using
+// the optimized quicksort algorithm with insertion sort for small partitions.
+// It returns a sorted copy of the input slice (in-place sorting is applied).
 func quickSort(nums []int) []int {
-	qSort(nums, 0, len(nums)-1)
+	length := len(nums)
+	if length <= 1 {
+		return nums
+	}
+	qSort(nums, 0, length-1)
 	return nums
 }
 
-// qSort implements in-place quicksort. Since Go lacks tail-call optimization,
-// it recurses on the smaller partition and loops on the larger one to minimize stack depth.
-func qSort(nums []int, left int, right int) {
+// qSort recursively sorts the subarray nums[left:right] using
+// the quicksort algorithm. It switches to insertion sort
+// for partitions of size 10 or less for better performance.
+func qSort(nums []int, left, right int) {
+
 	for left < right {
-		pivot := medianOfThree(nums, left, right)
-		nums[pivot], nums[right] = nums[right], nums[pivot]
-		pivotEndPos := partition(nums, left, right)
-		if pivotEndPos-left < right-pivotEndPos {
-			qSort(nums, left, pivotEndPos-1)
-			left = pivotEndPos + 1
-		} else {
-			qSort(nums, pivotEndPos+1, right)
-			right = pivotEndPos - 1
+
+		if right-left <= 10 {
+			insertSort(nums, left, right)
+			return
 		}
+
+		median := medianOfThree(nums, left, right)
+		nums[left], nums[median] = nums[median], nums[left]
+		pivot := nums[left]
+
+		lessThan := left
+		i := left + 1
+		greaterThan := right
+
+		for i <= greaterThan {
+			if nums[i] < pivot {
+				nums[lessThan], nums[i] = nums[i], nums[lessThan]
+				lessThan++
+				i++
+			} else if nums[i] > pivot {
+				nums[i], nums[greaterThan] = nums[greaterThan], nums[i]
+				greaterThan--
+			} else {
+				i++
+			}
+		}
+
+		if lessThan-left < right-greaterThan { // Recurse on the smaller partition to limit stack depth
+			qSort(nums, left, lessThan-1)
+			left = greaterThan + 1
+		} else {
+			qSort(nums, greaterThan+1, right)
+			right = lessThan - 1
+		}
+
 	}
+
 }
 
-// medianOfThree selects the pivot as the median of the first, middle, and last elements
-// This helps improve performance on partially sorted arrays
-func medianOfThree(nums []int, left int, right int) int {
+// medianOfThree returns the index of the median value among nums[left],
+// nums[mid], and nums[right]. This helps to improve pivot selection
+// and avoid worst-case performance on sorted inputs.
+func medianOfThree(nums []int, left, right int) int {
+
 	mid := left + (right-left)/2
+
 	if nums[left] > nums[right] {
 		nums[left], nums[right] = nums[right], nums[left]
 	}
@@ -45,21 +82,23 @@ func medianOfThree(nums []int, left int, right int) int {
 	if nums[mid] > nums[right] {
 		nums[mid], nums[right] = nums[right], nums[mid]
 	}
+
 	return mid
+
 }
 
-// partition rearranges elements in-place so that elements <= pivot are left
-// and elements > pivot are right, then returns the pivot's final index
-func partition(nums []int, left int, right int) int {
-	i := left
-	for j := left; j < right; j++ {
-		if nums[j] <= nums[right] {
-			nums[i], nums[j] = nums[j], nums[i]
-			i++
+// insertSort sorts the subarray nums[left:right] using insertion sort.
+// This is efficient for small partitions.
+func insertSort(nums []int, left, right int) {
+	for i := left + 1; i <= right; i++ {
+		key := nums[i]
+		j := i - 1
+		for j >= left && nums[j] > key {
+			nums[j+1] = nums[j]
+			j--
 		}
+		nums[j+1] = key
 	}
-	nums[right], nums[i] = nums[i], nums[right]
-	return i
 }
 
 /*

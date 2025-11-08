@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"slices"
 )
 
@@ -12,36 +13,51 @@ func main() {
 
 	fmt.Println(slice)
 
-	delete(&slice, i)
-	fmt.Println(slice)
-
-	slicesDelete(&slice, i)
-	fmt.Println(slice)
-
-}
-
-// delete removes an element from the slice at the given index
-// by creating a new slice and copying elements before and after the index.
-func delete(slice *[]int, index int) {
-	if index >= 0 && index < len(*slice) {
-		new := make([]int, len(*slice)-1)
-		copy(new, (*slice)[:index])
-		copy(new[index:], (*slice)[index+1:])
-		*slice = new
+	if err := deleteElement(&slice, i); err != nil {
+		fmt.Fprintf(os.Stderr, "error deleting element: %v\n", err)
+	} else {
+		fmt.Println(slice)
 	}
-}
 
-// slicesDelete removes an element from the slice at the given index
-// using the standard library function slices.Delete
-func slicesDelete(slice *[]int, index int) {
-	if index >= 0 && index < len(*slice) {
-		*slice = slices.Delete(*slice, index, index+1)
+	if err := slicesDelete(&slice, i); err != nil {
+		fmt.Fprintf(os.Stderr, "error deleting element: %v\n", err)
+	} else {
+		fmt.Println(slice)
 	}
+
 }
 
-/*
-Output:
-[1 2 3 4 5 6 7 8]
-[1 2 3 4 5 7 8]
-[1 2 3 4 5 8]
-*/
+// deleteElement removes the element at the given index from the slice
+// by shifting the elements after it to the left and reducing the slice length.
+// Returns an error if the slice is nil or the index is out of range.
+func deleteElement(slice *[]int, index int) error {
+
+	if slice == nil {
+		return fmt.Errorf("deleteElement: slice is nil")
+	} else if index < 0 || index >= len(*slice) {
+		return fmt.Errorf("deleteElement: index out of range")
+	}
+
+	copy((*slice)[index:], (*slice)[index+1:])
+	*slice = (*slice)[:len(*slice)-1]
+
+	return nil
+
+}
+
+// slicesDelete removes the element at the given index from the slice
+// using the standard library slices.Delete function.
+// Returns an error if the slice is nil or the index is out of range.
+func slicesDelete(slice *[]int, index int) error {
+
+	if slice == nil {
+		return fmt.Errorf("slicesDelete: slice is nil")
+	} else if index < 0 || index >= len(*slice) {
+		return fmt.Errorf("slicesDelete: index out of range")
+	}
+
+	*slice = slices.Delete(*slice, index, index+1)
+
+	return nil
+
+}

@@ -24,8 +24,9 @@ func main() {
 	status2 := make(chan struct{})
 	status3 := make(chan struct{})
 
-	wg.Add(5)
+	wg.Add(6)
 
+	go condtnExample(&wg)
 	go signalExample(sigCh, cancel, &wg)
 	go contexExample(ctx, status1, &wg)
 	go closedExample(status1, status2, &wg)
@@ -36,13 +37,27 @@ func main() {
 
 }
 
+// Demonstrates a simple conditional return; prints a prompt once and exits the goroutine.
+// Serves as the initial trigger before the interrupt signal is handled.
+func condtnExample(wg *sync.WaitGroup) {
+	defer wg.Done()
+	cnt := 0
+	for {
+		if cnt > 0 {
+			fmt.Println("\n1st return (Would you kindly press Ctrl+C to send OS interrupt?)")
+			return
+		}
+		cnt += 1
+	}
+}
+
 // Listens for an OS interrupt signal (Ctrl+C)
 func signalExample(sigCh chan os.Signal, cancel context.CancelFunc, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for {
 		select {
 		case <-sigCh:
-			fmt.Println("\n1st return")
+			fmt.Println("\n2st return")
 			cancel()
 			return
 		default:
@@ -57,7 +72,7 @@ func contexExample(ctx context.Context, status chan struct{}, wg *sync.WaitGroup
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("2nd return")
+			fmt.Println("3nd return")
 			close(status)
 			return
 		default:
@@ -72,7 +87,7 @@ func closedExample(status, status2 chan struct{}, wg *sync.WaitGroup) {
 	for {
 		select {
 		case <-status:
-			fmt.Println("3rd return")
+			fmt.Println("4th return")
 			close(status2)
 			return
 		default:
@@ -87,7 +102,7 @@ func goexitExample(status2, status3 chan struct{}, wg *sync.WaitGroup) {
 	for {
 		select {
 		case <-status2:
-			fmt.Println("4th return")
+			fmt.Println("5th return")
 			close(status3)
 			runtime.Goexit()
 		default:
@@ -121,23 +136,24 @@ func timersExample(status3 chan struct{}, wg *sync.WaitGroup) {
 func timerExample(timer *time.Timer, wg *sync.WaitGroup) {
 	defer wg.Done()
 	<-timer.C
-	fmt.Println("5th return")
+	fmt.Println("6th return")
 }
 
 // Waits for context timeout
 func ctxTimeoutExample(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 	<-ctx.Done()
-	fmt.Println("6th return")
+	fmt.Println("7th return")
 }
 
 /*
 Output:
+1st return (Would you kindly press Ctrl+C to send OS interrupt?)
 ^C
-1st return
-2nd return
-3rd return
+2st return
+3nd return
 4th return
 5th return
 6th return
+7th return
 */

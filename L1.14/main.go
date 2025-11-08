@@ -7,6 +7,14 @@ import (
 
 func main() {
 
+	testTypes()
+
+}
+
+// testTypes calls assertType and assertReflection on various values including basic types,
+// bidirectional channels, send-only channels, and receive-only channels.
+func testTypes() {
+
 	assertType(nil)
 	assertType(777)
 	assertType(true)
@@ -15,6 +23,14 @@ func main() {
 	assertType(make(chan int))
 	assertType(make(chan bool))
 	assertType(make(chan string))
+
+	assertType(make(chan<- int))
+	assertType(make(chan<- bool))
+	assertType(make(chan<- string))
+
+	assertType(make(<-chan int))
+	assertType(make(<-chan bool))
+	assertType(make(<-chan string))
 
 	assertReflection(nil)
 	assertReflection(123)
@@ -25,10 +41,20 @@ func main() {
 	assertReflection(make(chan bool))
 	assertReflection(make(chan string))
 
+	assertReflection(make(chan<- int))
+	assertReflection(make(chan<- bool))
+	assertReflection(make(chan<- string))
+
+	assertReflection(make(<-chan int))
+	assertReflection(make(<-chan bool))
+	assertReflection(make(<-chan string))
+
 }
 
-// assertType uses a type switch but requires explicitly listing each channel type (chan int, chan bool, etc.).
+// assertType prints the type of val using a type switch.
+// It distinguishes between basic types and channels of different directions (bidirectional, send-only, receive-only).
 func assertType(val any) {
+
 	switch val.(type) {
 	case int:
 		fmt.Println("integer")
@@ -37,22 +63,38 @@ func assertType(val any) {
 	case bool:
 		fmt.Println("boolean")
 	case chan int:
-		fmt.Println("int channel")
-	case chan string:
-		fmt.Println("string channel")
+		fmt.Println("int channel (bidirectional)")
 	case chan bool:
-		fmt.Println("bool channel")
+		fmt.Println("bool channel (bidirectional)")
+	case chan string:
+		fmt.Println("string channel (bidirectional)")
+	case chan<- int:
+		fmt.Println("int channel (send-only)")
+	case chan<- bool:
+		fmt.Println("bool channel (send-only)")
+	case chan<- string:
+		fmt.Println("string channel (send-only)")
+	case <-chan int:
+		fmt.Println("int channel (receive-only)")
+	case <-chan bool:
+		fmt.Println("bool channel (receive-only)")
+	case <-chan string:
+		fmt.Println("string channel (receive-only)")
 	default:
 		fmt.Println("type assertion failed")
 	}
+
 }
 
-// assertReflection uses the reflect package to detect types, allowing generic channel recognition.
+// assertReflection prints the type of val using reflection.
+// It can detect basic types and any channel type, but does not distinguish channel direction.
 func assertReflection(val any) {
+
 	if val == nil {
 		fmt.Println("type assertion failed")
 		return
 	}
+
 	t := reflect.TypeOf(val)
 	switch t.Kind() {
 	case reflect.Int:
@@ -66,6 +108,7 @@ func assertReflection(val any) {
 	default:
 		fmt.Println("type assertion failed")
 	}
+
 }
 
 /*
@@ -74,13 +117,25 @@ type assertion failed
 integer
 boolean
 string
-int channel
-bool channel
-string channel
+int channel (bidirectional)
+bool channel (bidirectional)
+string channel (bidirectional)
+int channel (send-only)
+bool channel (send-only)
+string channel (send-only)
+int channel (receive-only)
+bool channel (receive-only)
+string channel (receive-only)
 type assertion failed
 integer
 boolean
 string
+channel
+channel
+channel
+channel
+channel
+channel
 channel
 channel
 channel

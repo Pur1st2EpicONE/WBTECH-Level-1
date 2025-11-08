@@ -13,19 +13,18 @@ func main() {
 }
 
 // binarySearch performs an iterative binary search on a sorted slice of integers.
-// If the target value exists in the slice, it returns its index; otherwise, it returns -1.
+// It returns the index of the target value if it exists; otherwise, it returns -1.
+// Note: if the slice contains duplicates, it may return any matching index.
 func binarySearch(arr []int, val int) int {
-	if len(arr) > 0 {
-		left, right := 0, len(arr)-1
-		for left <= right {
-			mid := left + (right-left)/2
-			if arr[mid] == val {
-				return mid
-			} else if arr[mid] > val {
-				right = mid - 1
-			} else {
-				left = mid + 1
-			}
+	left, right := 0, len(arr)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if arr[mid] == val {
+			return mid
+		} else if arr[mid] > val {
+			right = mid - 1
+		} else {
+			left = mid + 1
 		}
 	}
 	return -1
