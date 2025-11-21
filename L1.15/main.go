@@ -24,7 +24,9 @@ func createHugeString(size int) string {
 
 // fixedFunc creates a huge string and copies only the first 100 bytes
 // into justString. This avoids keeping a reference to the full 1KB string,
-// which saves memory.
+// which saves memory. Alternatively, one can use an explicit copy into a
+// byte slice followed by conversion to string, or use strings.Clone to
+// achieve the same result in a more idiomatic way.
 func fixedFunc() {
 	v := createHugeString(1 << 10)
 	justString = string([]byte(v[:100]))
