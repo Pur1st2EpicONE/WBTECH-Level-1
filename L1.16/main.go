@@ -10,21 +10,31 @@ func main() {
 }
 
 // quickSort sorts a slice of integers in ascending order using
-// the optimized quicksort algorithm with insertion sort for small partitions.
-// It returns a sorted copy of the input slice (in-place sorting is applied).
+// the quicksort algorithm. It returns a sorted copy of the input slice,
+// leaving the original slice unchanged.
 func quickSort(nums []int) []int {
-	length := len(nums)
-	if length <= 1 {
-		return nums
+
+	if nums == nil {
+		return nil
 	}
-	qSort(nums, 0, length-1)
-	return nums
+
+	res := make([]int, len(nums))
+	copy(res, nums)
+
+	if len(res) <= 1 {
+		return res
+	}
+
+	qSort(res, 0, len(res)-1)
+
+	return res
+
 }
 
 // qSort recursively sorts the subarray nums[left:right] using
 // the quicksort algorithm. It switches to insertion sort
 // for partitions of size 10 or less for better performance.
-func qSort(nums []int, left, right int) {
+func qSort(nums []int, left int, right int) {
 
 	for left < right {
 
@@ -69,7 +79,7 @@ func qSort(nums []int, left, right int) {
 // medianOfThree returns the index of the median value among nums[left],
 // nums[mid], and nums[right]. This helps to improve pivot selection
 // and avoid worst-case performance on sorted inputs.
-func medianOfThree(nums []int, left, right int) int {
+func medianOfThree(nums []int, left int, right int) int {
 
 	mid := left + (right-left)/2
 
@@ -89,7 +99,7 @@ func medianOfThree(nums []int, left, right int) int {
 
 // insertSort sorts the subarray nums[left:right] using insertion sort.
 // This is efficient for small partitions.
-func insertSort(nums []int, left, right int) {
+func insertSort(nums []int, left int, right int) {
 	for i := left + 1; i <= right; i++ {
 		key := nums[i]
 		j := i - 1
